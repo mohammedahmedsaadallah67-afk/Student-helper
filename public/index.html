@@ -781,14 +781,31 @@ async function doAdminLogin(){
   const name=document.getElementById('adm-name').value.trim();
   const pass=document.getElementById('adm-pass').value;
   const err=document.getElementById('adm-err');
+  err.style.display='none';
+  if(name!==adminName){
+    err.textContent='اسم المشرف غير صحيح. اكتب الاسم المسجّل كاملاً.';
+    err.style.display='block';return;
+  }
+  if(!pass){
+    err.textContent='اكتب كلمة مرور المشرف أو كلمة مرور الناشر الحالية.';
+    err.style.display='block';return;
+  }
   let valid=Boolean(adminPass)&&pass===adminPass;
-  if(!adminPass){
+  if(!valid){
     try{
       const r=await fetch('/.netlify/functions/homework',{method:'POST',headers:{'Content-Type':'application/json','X-Publisher-Password':pass},body:JSON.stringify({action:'login'})});
       valid=r.ok;
-    }catch{valid=false;}
+      if(!valid){
+        err.textContent=r.status===401
+          ?'كلمة المرور غير صحيحة. استخدم كلمة مرور الناشر الحالية أو كلمة المشرف المحفوظة في هذا المتصفح.'
+          :'تعذّر التحقق من كلمة المرور الآن. حاول مرة أخرى لاحقاً.';
+        err.style.display='block';return;
+      }
+    }catch{
+      err.textContent='تعذّر الاتصال بالخادم. تأكد من الإنترنت وحاول مرة أخرى.';
+      err.style.display='block';return;
+    }
   }
-  if(name!==adminName||!valid){err.style.display='block';return;}
   err.style.display='none';
   document.getElementById('adm-name').value='';
   document.getElementById('adm-pass').value='';
