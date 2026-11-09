@@ -8,3 +8,9 @@ export const homework = pgTable('homework', {
   fileKey: text('file_key'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const studentRegistrations = pgTable('student_registrations', {
+  name: text().primaryKey(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  lastLoginAt: timestamp('last_login_at'),
+});
